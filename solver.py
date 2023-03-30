@@ -173,7 +173,8 @@ class Solver():
         elif level4 > 1:
             print(f"- Level 4: {level4} gems ({level4 * 3} keys)")
 
-        res = level3 + (3 * level4)
+        keys = self.best.count_keys()
+        res = keys[0] + 3*keys[1]
         max_potential = ceil(self.start.potential_score())
 
         if res == max_potential:
@@ -220,11 +221,13 @@ def solve(locked_bottom,locked_top,free,free_bottom,free_top,free_full,silent=Fa
     solver = Solver(locked_bottom,locked_top,free,free_bottom,free_top,free_full)
     solver.solve()
 
-    max_keys = min(sum(locked_bottom),sum(locked_top))
-    starting = sum(free)
+    max_keys = 3 * min(sum(locked_bottom),sum(locked_top))
+    starting = 3 * sum(free)
 
     if not silent:
         solver.help()
         solver.show_results()
 
-    return (sum(solver.best.count_keys()), starting, max_keys, None, None, None)
+    keys = solver.best.count_keys()
+
+    return (keys[0] + 3*keys[1], starting, max_keys, None, None, None)

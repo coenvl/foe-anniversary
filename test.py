@@ -2,7 +2,7 @@ from my_solver import Solver
 from mooing15 import solve
 from solver import solve as bruteforce_solve
 
-from generate_tests import generate_random
+from generate_tests import generate_random, generate_tests
 
 # Keep in mind you have to do this for each color on each board
 score_maximum = 0
@@ -48,6 +48,7 @@ try:
 except KeyboardInterrupt:
     pass
 
+print(f"Scored a total of {total_keys} keys")
 print(f"Scored maximum keys {score_maximum} times")
 print(f"Scored maximum keys given spawned gems {score_starting} times")
 print(f"Other results {score_unsure} times")

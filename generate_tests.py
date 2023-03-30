@@ -4,7 +4,7 @@ def generate_random():
     while 1:
         yield random.sample(range(0,4),4), random.sample(range(0,4),4), random.sample(range(0,4),4)
 
-def generate_test():
+def generate_tests():
     for file in ['test_cases.txt']:
          with open(file, 'r', encoding = 'utf-8') as fid:
             while fid.readable():

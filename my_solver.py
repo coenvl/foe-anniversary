@@ -5,8 +5,8 @@ class Solver():
     """ Contains the state of the game and the solver """
 
     def __init__(self, locked_bottom, locked_top, free, free_bottom, free_top, free_full, silent: bool = False):
-        self.max = min(sum(locked_bottom),sum(locked_top))
-        self.starting = sum(free)
+        self.max = 3 * min(sum(locked_bottom),sum(locked_top))
+        self.starting = 3 * sum(free)
         self.max_progress = sum(locked_bottom) + sum(locked_top) + locked_bottom[3] + locked_top[3]
 
         self.locked_bottom = locked_bottom
@@ -50,7 +50,7 @@ class Solver():
 
         self._print("==Results==")
 
-        res = sum(self.free_full)
+        res = self.free_full[2] + self.free_full[3]
 
         if res == self.max:
             self._print(f"Keys: {res}/{self.max} (Maximum keys picked up)")

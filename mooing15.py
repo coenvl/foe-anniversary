@@ -5,8 +5,8 @@ def solve(lockedB,lockedT,free,freeB,freeT,freeF,silent=False):
 
     _print('Running solver 1.5 from mooing')
     
-    max = min(sum(lockedB),sum(lockedT))
-    starting = sum(free)
+    max = 3 * min(sum(lockedB),sum(lockedT))
+    starting = 3 * sum(free)
     
     maxP = sum(lockedB) + sum(lockedT) + lockedB[3] + lockedT[3]
     
@@ -416,7 +416,7 @@ def solve(lockedB,lockedT,free,freeB,freeT,freeF,silent=False):
             _print("==Results==")
             break
     
-    res = sum(freeF)
+    res = freeF[2] + 3*freeF[3]
     
     if res == max:
       _print(f"Keys: {res}/{max} (Maximum keys picked up)")
