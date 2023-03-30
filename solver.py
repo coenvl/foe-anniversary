@@ -139,7 +139,7 @@ class Solver():
             for _ in range(free_full[level]):
                 self.start.append(Gem(level, Part.FULL, False))
 
-        self.end_states: Set[State] = set()
+        self.end_states: List[State] = []
         self.best = self.start
 
     def help(self):
@@ -188,10 +188,11 @@ class Solver():
 
         print(f"Progress: {total_progress}/{self.max_progress} ({remaining_locked} remaining locked gems)")
         print("Keep in mind these results are only for the selected color")
+        print(len(self.end_states))
 
     def solve(self) -> State:
         """ Solve the problem """
-        search_states: Set[State] = set([State(self.start)])
+        search_states: List[State] = [State(self.start)]
 
         while search_states:
             state = search_states.pop()
@@ -199,14 +200,13 @@ class Solver():
             for move in moves:
                 new_state = state.apply(move)
 
-                if new_state.potential_score() < self.best.score():
+                if new_state.potential_score() < self.best.score() or new_state in self.end_states:
                     continue
                 if new_state.score() >= self.best.score():
                     self.best = new_state
 
-                if new_state not in self.end_states:
-                    search_states.add(new_state)
-                    self.end_states.add(new_state)
+                search_states.append(new_state)
+                self.end_states.append(new_state)
 
         # best = sorted(self.end_states, key = State.score)
         return self.best
