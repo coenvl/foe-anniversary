@@ -139,7 +139,7 @@ class Solver():
             for _ in range(free_full[level]):
                 self.start.append(Gem(level, Part.FULL, False))
 
-        self.end_states: List[State] = []
+        self.end_states: Set[State] = set()
         self.best = self.start
 
     def help(self):
@@ -206,7 +206,7 @@ class Solver():
                     self.best = new_state
 
                 search_states.append(new_state)
-                self.end_states.append(new_state)
+                self.end_states.add(new_state)
 
         # best = sorted(self.end_states, key = State.score)
         return self.best
