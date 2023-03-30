@@ -2,7 +2,7 @@ from my_solver import Solver
 from mooing15 import solve
 from solver import solve as bruteforce_solve
 
-from generate_tests import generate_random, generate_tests
+from generate_tests import generate_random, generate_tests, generate_normal
 
 # Keep in mind you have to do this for each color on each board
 score_maximum = 0
@@ -12,7 +12,7 @@ total_keys = 0
 
 signal = 100
 try:
-    for test_tuple in generate_random():
+    for test_tuple in generate_normal():
         freeBot = [0,0,0,0]
         freeTop = [0,0,0,0]
         freeFull = [0,0,0,0]
@@ -45,6 +45,7 @@ try:
         else:
             score_unsure += 1
         total_keys += res_best
+        print('.', end='', flush=True)
 except KeyboardInterrupt:
     pass
 

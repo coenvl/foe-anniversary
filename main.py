@@ -37,9 +37,9 @@ l4 = 1
 
 # Optional. Number of free gems with a key piece or full key. Format is [l1,l2,l3,l4].
 # This will be all 0 for a new board
-freeBot = [0,0,0,0]
-freeTop = [0,0,0,0]
-freeFull = [0,0,0,0]
+free_bottom = [0,0,0,0]
+free_top = [0,0,0,0]
+free_full = [0,0,0,0]
 
 
 
@@ -53,8 +53,8 @@ freeFull = [0,0,0,0]
 
 
 ### Do not change anything below here
-lockedB = [l1b,l2b,l3b,l4b]
-lockedT = [l1t,l2t,l3t,l4t]
+locked_bottom = [l1b,l2b,l3b,l4b]
+locked_top = [l1t,l2t,l3t,l4t]
 free = [l1,l2,l3,l4]
 
-solve(lockedB,lockedT,free,freeBot,freeTop,freeFull)
+solve(locked_bottom,locked_top,free,free_bottom,free_top,free_full)
