@@ -22,7 +22,7 @@ class Gem():
         return self.level == other.level and not (self.locked and other.locked)
 
     def __hash__(self) -> int:
-        return self.level + self.part.value + self.locked
+        return (self.level << 3) + (self.part.value << 1) + self.locked
 
     def __eq__(self, other: Gem):
         return self.level == other.level and self.part == other.part and self.locked == other.locked
@@ -108,12 +108,10 @@ class State():
         return self.num_locked() + sum(1 for gem in self.gems if gem.locked and gem.level == 3)
 
     def __hash__(self) -> int:
-        return sum(x.__hash__() for x in self.gems)
+        return hash(tuple(self.gems))
 
     def __eq__(self, other: State):
-        if len(self.gems) != len(other.gems):
-            return False
-        return all(self.gems[i] == other.gems[i] for i,_ in enumerate(self.gems))
+        return self.gems == other.gems
 
     def __repr__(self):
         return self.gems.__repr__()
@@ -192,24 +190,21 @@ class Solver():
 
     def solve(self) -> State:
         """ Solve the problem """
-        search_states: List[State] = [State(self.start)]
-
-        while search_states:
-            state = search_states.pop()
-            moves = self._find_possible_moves(state)
-            for move in moves:
-                new_state = state.apply(move)
-
-                if new_state.potential_score() < self.best.score() or new_state in self.end_states:
-                    continue
-                if new_state.score() >= self.best.score():
-                    self.best = new_state
-
-                search_states.append(new_state)
-                self.end_states.add(new_state)
-
-        # best = sorted(self.end_states, key = State.score)
+        self._recurse(self.start)
         return self.best
+
+    def _recurse(self, state: State):
+        moves = self._find_possible_moves(state)
+        for move in moves:
+            new_state = state.apply(move)
+
+            if new_state.potential_score() < self.best.score() or new_state in self.end_states:
+                continue
+            if new_state.score() >= self.best.score():
+                self.best = new_state
+
+            self.end_states.add(new_state)
+            self._recurse(new_state)
 
     def _find_possible_moves(self, state: State):
         moves = set()
