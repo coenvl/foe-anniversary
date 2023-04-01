@@ -190,21 +190,20 @@ class Solver():
 
     def solve(self) -> State:
         """ Solve the problem """
-        self._recurse(self.start)
-        return self.best
+        stack = [State(self.start)]
+        while stack:
+            state = stack.pop()
+            moves = self._find_possible_moves(state)
+            for move in moves:
+                new_state = state.apply(move)
 
-    def _recurse(self, state: State):
-        moves = self._find_possible_moves(state)
-        for move in moves:
-            new_state = state.apply(move)
+                if new_state.potential_score() < self.best.score() or new_state in self.end_states:
+                    continue
+                if new_state.score() >= self.best.score():
+                    self.best = new_state
 
-            if new_state.potential_score() < self.best.score() or new_state in self.end_states:
-                continue
-            if new_state.score() >= self.best.score():
-                self.best = new_state
-
-            self.end_states.add(new_state)
-            self._recurse(new_state)
+                self.end_states.add(new_state)
+                stack.append(new_state)
 
     def _find_possible_moves(self, state: State):
         moves = set()
