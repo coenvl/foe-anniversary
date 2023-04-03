@@ -2,7 +2,7 @@ from solver import solve
 # from mooing15 import solve
 # from my_solver import solve
 
-#V3.0 
+#V3.1
 
 # Check out this video for more information: https://youtu.be/uGbZPrpFsI8?t=2086
 
@@ -20,20 +20,20 @@ from solver import solve
 # Keep in mind you have to do this for each color on each board
 
 # Number of Locked Gems. "l1" = gem level 1, "l2" = gem level 2, etc. "b" = bottom key piece, "t" = top key piece.
-l1b = 1
+l1b = 2
 l1t = 0
-l2b = 5
-l2t = 1
-l3b = 2
+l2b = 2
+l2t = 2
+l3b = 0
 l3t = 1
-l4b = 0
-l4t = 0
+l4b = 1
+l4t = 1
 
 # Number of Free Gems. These are the ones that you spawned
-l1 = 5
-l2 = 2
-l3 = 1
-l4 = 1
+l1 = 1
+l2 = 1
+l3 = 0
+l4 = 0
 
 # Optional. Number of free gems with a key piece or full key. Format is [l1,l2,l3,l4].
 # This will be all 0 for a new board

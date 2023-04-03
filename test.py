@@ -38,6 +38,19 @@ try:
                 fid.write(f'locked_top = {locked_top}\n')
                 fid.write(f'free = {free}\n\n')
 
+        if res_best == res and total_progress_best < total_progress:
+            with open('deteriorate_progress.txt', 'a') as fid:
+                fid.write(f'locked_bottom = {locked_bottom}\n')
+                fid.write(f'locked_top = {locked_top}\n')
+                fid.write(f'free = {free}\n\n')
+
+        if res_best == res_opt and total_progress_best < total_progress_opt:
+            with open('deteriorate_progress.txt', 'a') as fid:
+                fid.write(f'locked_bottom = {locked_bottom}\n')
+                fid.write(f'locked_top = {locked_top}\n')
+                fid.write(f'free = {free}\n\n')
+
+
         if res_opt == max_keys:
             score_maximum += 1
         elif res_opt == starting:

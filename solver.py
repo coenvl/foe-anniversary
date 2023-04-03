@@ -45,7 +45,7 @@ class MergedGem(Gem):
     def __init__(self, one: Gem, two: Gem):
         assert one.level == two.level
         super().__init__(min(3,one.level + 1), Part(one.part.value | two.part.value), False)
-        self.moves = one.moves + two.moves + [f"{one} + {two}"]
+        self.moves = one.moves + two.moves + [f"{one.level+1}: {str(one):>12} + {str(two):<13} => {self}"]
 
 class State():
     def __init__(self, state: State = None, move: Tuple[Gem, Gem] = None):
@@ -78,23 +78,26 @@ class State():
             print(f"==Level {level} Merges==")
             moves = []
             for gem in self.gems:
-                moves += [move for move in gem.moves if str(level) in move]
+                #print(gem.moves)
+                moves += [move[3:] for move in gem.moves if move.startswith(str(level))]
             for move in sorted(moves):
                 print(move)
 
     def score(self) -> float:
-        score = sum(1 for gem in self.gems if gem.level == 2 and gem.part == Part.FULL)
-        score += sum(3 for gem in self.gems if gem.level == 3 and gem.part == Part.FULL)
+        (level3, level4) = self.count_keys()
+        score = level3 + 3 * level4
         score += sum(-.01 for gem in self.gems if gem.locked)
         score += sum(-.01 for gem in self.gems if gem.locked and gem.level == 3)
         return score
 
     def potential_score(self) -> int:
         """ Optimistically estimate a maximum score assuming we can get all parts to level 4 """
+        (level3, level4) = self.count_keys()
+        score = level3 + 3 * level4
         tops = sum(1 for gem in self.gems if gem.part == Part.TOP)
         bottoms = sum(1 for gem in self.gems if gem.part == Part.BOT)
         free = sum(1 for gem in self.gems if not gem.locked)
-        return self.score() + 3 * min(tops, bottoms, free)
+        return score + 3 * min(tops, bottoms, free) # + .01 * self.num_locked()
 
     def num_locked(self) -> int:
         """ Number of locked tiles in a state """
@@ -197,9 +200,9 @@ class Solver():
             for move in moves:
                 new_state = state.apply(move)
 
-                if new_state.potential_score() < self.best.score() or new_state in self.end_states:
+                if new_state.potential_score() <= self.best.score() or new_state in self.end_states:
                     continue
-                if new_state.score() >= self.best.score():
+                if new_state.score() > self.best.score():
                     self.best = new_state
 
                 self.end_states.add(new_state)
@@ -224,4 +227,9 @@ def solve(locked_bottom,locked_top,free,free_bottom,free_top,free_full,silent=Fa
 
     keys = solver.best.count_keys()
 
-    return (keys[0] + 3*keys[1], starting, max_keys, None, None, None)
+
+    remaining_progress = solver.best.potential_progress()
+    total_progress = solver.start.potential_progress() - remaining_progress
+
+
+    return (keys[0] + 3*keys[1], starting, max_keys, total_progress, solver.start.potential_progress(), solver.best.num_locked())
