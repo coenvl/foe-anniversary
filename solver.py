@@ -1,7 +1,7 @@
 """ Solver for the FOE anniversary event """
 from __future__ import annotations
 from math import ceil
-from typing import Tuple, List, Set
+from typing import Callable, Tuple, List, Set
 from enum import Enum
 
 class Part(Enum):
@@ -16,39 +16,39 @@ class Gem():
         self.level = level
         self.part = part
         self.locked = locked
-        self.moves = []
+        self.moves: List[Move] = []
+        # Compute binary encoding for hashing and comparing
+        self._hash = int((self.level << 3) + (self.locked << 2) + self.part.value)
 
     def can_merge_with(self, other: Gem) -> bool:
         return self.level == other.level and not (self.locked and other.locked)
 
     def __hash__(self) -> int:
-        return (self.level << 3) + (self.part.value << 1) + self.locked
+        return self._hash
 
-    def __eq__(self, other: Gem):
+    def __eq__(self, other: Gem) -> bool:
         return self.level == other.level and self.part == other.part and self.locked == other.locked
 
-    def __lt__(self, other: Gem):
-        """ Compare first based on level, then lock, then part """
-        if self.level == other.level:
-            if self.locked == other.locked:
-                return self.part.value < other.part.value
-            return self.locked < other.locked
-        return self.level < other.level
+    def __lt__(self, other: Gem) -> bool:
+        return self._hash < other._hash
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         value = f"{'Locked' if self.locked else 'Free'} L{self.level + 1}"
         if self.part != Part.EMPTY:
             return f"{value} {self.part.name.capitalize()}"
         return value
 
+Move = Tuple[Gem, ...]
+
 class MergedGem(Gem):
-    def __init__(self, one: Gem, two: Gem):
-        assert one.level == two.level
-        super().__init__(min(3,one.level + 1), Part(one.part.value | two.part.value), False)
-        self.moves = one.moves + two.moves + [f"{one.level+1}: {str(one):>12} + {str(two):<13} => {self}"]
+    def __init__(self, move: Move):
+        assert move[0].level == move[1].level
+        super().__init__(min(3,move[0].level + 1),
+                            Part(move[0].part.value | move[1].part.value), False)
+        self.moves = move[0].moves + move[1].moves + [(move[0], move[1], self)]
 
 class State():
-    def __init__(self, state: State = None, move: Tuple[Gem, Gem] = None):
+    def __init__(self, state: State = None, move: Move = None):
         if state is None:
             self.gems: List[Gem] = []
         else:
@@ -56,8 +56,25 @@ class State():
             if move is not None:
                 self.gems.remove(move[0])
                 self.gems.remove(move[1])
-                self.gems.append(MergedGem(*move))
+                self.gems.append(MergedGem(move))
                 self.gems = sorted(self.gems)
+
+        self._update_score()
+
+    def _update_score(self):
+        keys, tops, bottoms, free, lock_penalty = 0, 0, 0, 0, 0
+        for gem in self.gems:
+            free += not gem.locked
+            lock_penalty += gem.locked
+            lock_penalty += gem.locked and gem.level == 3
+
+            keys += gem.part == Part.FULL and gem.level == 2
+            keys += 3*(gem.part == Part.FULL and gem.level == 3)
+            bottoms += gem.part == Part.BOT
+            tops += gem.part == Part.TOP
+
+        self._potential_score = keys + 3 * min(tops, bottoms, free)
+        self._score = keys - .01 * lock_penalty
 
     def apply(self, move: Tuple[Gem, Gem]):
         """ Generate a new state by applying the move """
@@ -66,49 +83,42 @@ class State():
     def append(self, gem: Gem):
         """ Appends a gem to the state (for building a new state) """
         self.gems.append(gem)
-        self.gems = sorted(self.gems)
+        self._update_score()
 
     def count_keys(self) -> Tuple[int]:
-        level3 = sum(1 for gem in self.gems if gem.level == 2 and gem.part == Part.FULL)
-        level4 = sum(1 for gem in self.gems if gem.level == 3 and gem.part == Part.FULL)
+        level3 = sum(gem.level == 2 and gem.part == Part.FULL for gem in self.gems)
+        level4 = sum(gem.level == 3 and gem.part == Part.FULL for gem in self.gems)
         return (level3, level4)
 
     def show_moves(self):
-        for level in range(1,5):
-            print(f"==Level {level} Merges==")
-            moves = []
+        def sort_move(move: Move) -> Move:
+            return move if move[1].locked else (move[1], move[0], move[2])
+
+        for level in range(0,4):
+            print(f"==Level {level + 1} Merges==")
             for gem in self.gems:
-                #print(gem.moves)
-                moves += [move[3:] for move in gem.moves if move.startswith(str(level))]
-            for move in sorted(moves):
-                print(move)
+                for move in gem.moves:
+                    if move[0].level == level:
+                        one, two, result = sort_move(move)
+                        print(f"{str(one):>12} + {str(two):<13} => {result}")
 
     def score(self) -> float:
-        (level3, level4) = self.count_keys()
-        score = level3 + 3 * level4
-        score += sum(-.01 for gem in self.gems if gem.locked)
-        score += sum(-.01 for gem in self.gems if gem.locked and gem.level == 3)
-        return score
+        return self._score
 
     def potential_score(self) -> int:
         """ Optimistically estimate a maximum score assuming we can get all parts to level 4 """
-        (level3, level4) = self.count_keys()
-        score = level3 + 3 * level4
-        tops = sum(1 for gem in self.gems if gem.part == Part.TOP)
-        bottoms = sum(1 for gem in self.gems if gem.part == Part.BOT)
-        free = sum(1 for gem in self.gems if not gem.locked)
-        return score + 3 * min(tops, bottoms, free) # + .01 * self.num_locked()
+        return self._potential_score
 
     def num_locked(self) -> int:
         """ Number of locked tiles in a state """
-        return sum(1 for gem in self.gems if gem.locked)
+        return sum(gem.locked for gem in self.gems)
 
     def potential_progress(self) -> int:
         """ Potential progress of this state.
 
         This equals number locked tiles plus locked level 3 tiles, since they account for 2 progress
         """
-        return self.num_locked() + sum(1 for gem in self.gems if gem.locked and gem.level == 3)
+        return self.num_locked() + sum(gem.locked and gem.level == 3 for gem in self.gems)
 
     def __hash__(self) -> int:
         return hash(tuple(self.gems))
@@ -188,6 +198,7 @@ class Solver():
         remaining_locked = self.best.num_locked()
 
         print(f"Progress: {total_progress}/{self.max_progress} ({remaining_locked} remaining locked gems)")
+        print(f"Score: {self.best.score()}")
         print("Keep in mind these results are only for the selected color")
         print(len(self.end_states))
 
@@ -198,7 +209,7 @@ class Solver():
             state = stack.pop()
             moves = self._find_possible_moves(state)
             for move in moves:
-                new_state = state.apply(move)
+                new_state = State(state, move)
 
                 if new_state.potential_score() <= self.best.score() or new_state in self.end_states:
                     continue
@@ -209,10 +220,12 @@ class Solver():
                 stack.append(new_state)
 
     def _find_possible_moves(self, state: State):
-        moves = set()
-        for i, one in enumerate(state.gems):
-            moves.update((one, two) for two in state.gems[i+1:] if one.can_merge_with(two))
-        return moves
+        # moves = set()
+        # for i, one in enumerate(state.gems):
+        #     moves.update((one, two) for two in state.gems[i+1:] if one.can_merge_with(two))
+        # return moves
+        return set((one, two) for i, one in enumerate(state.gems)
+                        for two in state.gems[i+1:] if one.can_merge_with(two))
 
 def solve(locked_bottom,locked_top,free,free_bottom,free_top,free_full,silent=False) -> Tuple[int]: #pylint: disable=unused-argument
     solver = Solver(locked_bottom,locked_top,free,free_bottom,free_top,free_full)
