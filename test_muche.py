@@ -488,6 +488,12 @@ testcases: List[TestCase] = [
         keys=9, max_keys=15, progress=11, potential_progress=11,
         unlocked_part = 1, unlocked_empty = 1
     ),
+    TestCase(name="comment-6155079334 by MarkusS", tctype=TestCaseType.FULL,
+        locked_bottom=(1,0,0,2), locked_top=(1,3,2,0), free=(4,0,0,0),
+        free_bottom=(0,0,0,0), free_top=(0,0,0,0), free_full=(0,0,0,0),
+        keys=7, max_keys=9, progress=11, potential_progress=11,
+        unlocked_part = 0, unlocked_empty = 0
+    ),
 
 
     # some of my boards
