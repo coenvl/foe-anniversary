@@ -7,9 +7,10 @@ from typing import Tuple, List
 # active solver
 # from solver_v31 import solve
 from solver import solve
+#from mooing15 import solve
 
 # reference solver by MooingCat
-# import solver_v15
+import mooing15 as solver_mooing15
 # other reference solvers used to establish best results in dev mode
 #import solver_coen_v3
 #import solver_coen_v3b
@@ -123,7 +124,8 @@ class TestCase():
         rrstr: List[str] = []
         tStart = timer()
         try:
-            result = solve(self.locked_bottom, self.locked_top, self.free, self.free_bottom, self.free_top, self.free_full, True)
+            # MooingCat's solver expects lists and modifies them, so need to copy & transform the inputs
+            result = solve(list(self.locked_bottom), list(self.locked_top), list(self.free), list(self.free_bottom), list(self.free_top), list(self.free_full), True)
             result_keys = result[0]
             result_max_keys = result[2]
             result_progress = result[3]
