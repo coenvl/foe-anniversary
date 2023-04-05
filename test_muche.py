@@ -5,20 +5,20 @@ from timeit import default_timer as timer
 from typing import Tuple, List
 
 # active solver
-# from solver_v31 import solve
 from solver import solve
 #from mooing15 import solve
+#from my_solver import solve
+#from solver_v31 import solve
 
 # reference solver by MooingCat
 import mooing15 as solver_mooing15
 # other reference solvers used to establish best results in dev mode
-#import solver_coen_v3
-#import solver_coen_v3b
-#import solver_coen_v3c
-#import solver_coen_v3d
+#import my_solver as solver_my
+import solver as solver_optimized_bruteforce
+#import solver_v31
 
 
-version = "v1.0"
+version = "v1.1"
 
 
 def get_solvers() -> List[types.FunctionType]:
@@ -95,7 +95,7 @@ class TestCase():
 
     def _run_dev(self) -> str:
         for solver in get_solvers():
-            print(f"\n\tRunning test '{self.name}' with solver {solver.__module__}:")
+            print(f"\n\t\033[35mRunning test '{self.name}' with solver {solver.__module__}:\033[0m")
             tStart = timer()
             # MooingCat's solver expects lists and modifies them, so need to copy & transform the inputs
             try:

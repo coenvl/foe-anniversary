@@ -76,7 +76,7 @@ class Solver():
 
         self._print(f"Progress: {total_progress}/{self.max_progress} ({remaining_locked} remaining locked gems)")
         self._print("Keep in mind these results are only for the selected color")
-        return (res, self.starting, self.max, total_progress, self.max_progress, remaining_locked)
+        return (res, self.starting, self.max, total_progress, self.max_progress, remaining_locked, 0, 0)
 
     def _solve_level(self, level):
         self._print(f"==Level {level + 1} Merges==")
@@ -226,5 +226,5 @@ class Solver():
         return sum(self.locked_top[from_level:]) + sum(self.free_top[from_level:])
 
 def solve(locked_bottom,locked_top,free,free_bottom,free_top,free_full,silent=False) -> Tuple[int]: #pylint: disable=unused-argument
-    solver = Solver(locked_bottom,locked_top,free,free_bottom,free_top,free_full)
+    solver = Solver(locked_bottom,locked_top,free,free_bottom,free_top,free_full,silent)
     return solver.solve()
