@@ -6,6 +6,9 @@ from enum import Enum
 
 VERSION=3.2
 
+LOCK_TILE_WEIGHT = .01
+FREE_GEM_WEIGHT = .0001
+
 class Part(Enum):
     EMPTY = 0
     TOP = 1
@@ -29,12 +32,11 @@ class Gem():
         lock_penalty = self.locked
         keys = self.part == Part.FULL
         empty_gem_penalty = self.part == Part.EMPTY
-        # empty_gem_penalty += self.part != Part.FULL
         if self.level == 3:
             keys *= 3
             lock_penalty *= 2
 
-        return keys - .01 * lock_penalty - 0.0001 * empty_gem_penalty
+        return keys - LOCK_TILE_WEIGHT * lock_penalty - FREE_GEM_WEIGHT * empty_gem_penalty
 
     def can_merge_with(self, other: Gem) -> bool:
         return self.level == other.level and (self.free or other.free)
@@ -78,7 +80,7 @@ class State():
             self.gems = sorted(self.gems) # Must sort for equality
 
             # Computing score based on previous. Makes it much faster
-            merge_penalty = 0.0002
+            merge_penalty = 2 * FREE_GEM_WEIGHT
             self.score = state.score - move[0].score - move[1].score + new_gem.score - merge_penalty
             self._tops = state._tops - (move[0].part == Part.TOP) - (move[1].part == Part.TOP) + (new_gem.part == Part.TOP)
             self._bottoms = state._bottoms - (move[0].part == Part.BOT) - (move[1].part == Part.BOT) + (new_gem.part == Part.BOT)
@@ -227,7 +229,7 @@ class Solver():
         stack = [self.start]
         while stack:
             state = stack.pop()
-            moves = self._find_possible_moves(state)
+            moves = self._find_good_moves(state)
             for move in moves:
                 new_state = State(state, move)
 
@@ -239,20 +241,17 @@ class Solver():
                 self.end_states.add(new_state)
                 stack.append(new_state)
 
-    def _find_possible_moves(self, state: State):
-        # return set((one, two) for i, one in enumerate(state.gems)
-        #         for two in state.gems[i+1:] if one.can_merge_with(two))
-        moves = set()
-        # limit possible moves to the lowest level with merges of locked gems, but allow merging of two free gems in levels lower than that
-        minlevel = 100  # minimum level at which locked gems can be merged
-        minlevel_free = 100  # minimum level at which free gems can merge
-        for i, one in enumerate(state.gems):
-            minlevel = min(minlevel, min([one.level for two in state.gems[i+1:] if one.can_merge_with(two) and (one.locked or two.locked)], default=100))
-            minlevel_free = min(minlevel_free, min([one.level for two in state.gems[i+1:] if one.can_merge_with(two) and one.free and two.free], default=100))
-        for i, one in enumerate(state.gems):
-            moves.update((one, two) for two in state.gems[i+1:] if (one.level == minlevel and one.can_merge_with(two) and (one.locked or two.locked))
-                                                                    or (minlevel_free < minlevel and one.can_merge_with(two) and one.free and two.free))
-        return moves
+    def _find_good_moves(self, state: State):
+        """ Limit possible moves to the lowest level with merges of locked gems, 
+        but allow merging of two free gems in levels lower than that """
+        minlevel = min((level for level in range(0,4) if
+                        any(gem.locked and gem.level == level for gem in state.gems) and
+                        any(gem.free and gem.level == level for gem in state.gems)),
+                            default=4)
+        return set((one, two) for i, one in enumerate(state.gems)
+                    for two in state.gems[i+1:] if one.can_merge_with(two) and
+                        (one.level < minlevel or
+                            one.level == minlevel and (one.locked or two.locked)))
 
 def solve(locked_bottom,locked_top,free,free_bottom,free_top,free_full,silent=False) -> Tuple[int]: #pylint: disable=unused-argument
     solver = Solver(locked_bottom,locked_top,free,free_bottom,free_top,free_full)
