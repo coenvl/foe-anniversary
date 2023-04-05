@@ -403,6 +403,32 @@ testcases: List[TestCase] = [
         keys=3, max_keys=3, progress=6, potential_progress=6,
         unlocked_part = 2, unlocked_empty = 0
     ),
+    TestCase(name="unmerged top is better than unmerged empty", tctype=TestCaseType.BASE,
+        locked_bottom=(0,0,0,1), locked_top=(1,0,0,1), free=(1,2,1,0),
+        free_bottom=(0,0,0,0), free_top=(0,0,0,0), free_full=(0,0,0,0),
+        keys=3, max_keys=3, progress=5, potential_progress=5,
+        unlocked_part = 1, unlocked_empty = 0
+    ),
+    TestCase(name="unmerged bot is better than unmerged empty", tctype=TestCaseType.BASE,
+        locked_bottom=(1,0,0,1), locked_top=(0,0,0,1), free=(1,2,1,0),
+        free_bottom=(0,0,0,0), free_top=(0,0,0,0), free_full=(0,0,0,0),
+        keys=3, max_keys=3, progress=5, potential_progress=5,
+        unlocked_part = 1, unlocked_empty = 0
+    ),
+    # numbers technically based on clear board reward (1 key per 10 empty gems, 1 key per 4 gems with a key part)
+    # but still it's rare, circumstential and debatable
+    TestCase(name="one unmerged top is better than two unmerged empties", tctype=TestCaseType.BASE,
+        locked_bottom=(0,0,0,1), locked_top=(1,0,0,1), free=(3,1,1,0),
+        free_bottom=(0,0,0,0), free_top=(0,0,0,0), free_full=(0,0,0,0),
+        keys=3, max_keys=3, progress=5, potential_progress=5,
+        unlocked_part = 1, unlocked_empty = 0
+    ),
+    TestCase(name="one unmerged bot is better than two unmerged empties", tctype=TestCaseType.BASE,
+        locked_bottom=(1,0,0,1), locked_top=(0,0,0,1), free=(3,1,1,0),
+        free_bottom=(0,0,0,0), free_top=(0,0,0,0), free_full=(0,0,0,0),
+        keys=3, max_keys=3, progress=5, potential_progress=5,
+        unlocked_part = 1, unlocked_empty = 0
+    ),
 
 
     # boards from comments at https://www.mooingcatguides.com/event-guides/2023-anniversary-event-guide#comments
@@ -479,7 +505,7 @@ testcases: List[TestCase] = [
         locked_bottom=(2,0,0,2), locked_top=(0,0,1,1), free=(4,0,0,2),
         free_bottom=(0,0,0,0), free_top=(0,0,0,0), free_full=(0,0,0,0),
         keys=6, max_keys=6, progress=9, potential_progress=9,
-        unlocked_part = 1, unlocked_empty = 2
+        unlocked_part = 2, unlocked_empty = 0
     ),
     TestCase(name="tc4", tctype=TestCaseType.FULL,
         locked_bottom=(0,1,0,0), locked_top=(0,3,1,1), free=(3,1,1,2),
