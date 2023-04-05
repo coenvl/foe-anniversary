@@ -18,6 +18,7 @@ class Gem():
         self.level = level
         self.part = part
         self.locked = locked
+        self.free = not locked
         self.moves: List[Move] = []
         # Compute binary encoding for hashing and comparing
         self._hash = int((self.level << 3) + (self.locked << 2) + self.part.value)
@@ -28,6 +29,7 @@ class Gem():
         lock_penalty = self.locked
         keys = self.part == Part.FULL
         empty_gem_penalty = self.part == Part.EMPTY
+        # empty_gem_penalty += self.part != Part.FULL
         if self.level == 3:
             keys *= 3
             lock_penalty *= 2
@@ -35,7 +37,7 @@ class Gem():
         return keys - .01 * lock_penalty - 0.0001 * empty_gem_penalty
 
     def can_merge_with(self, other: Gem) -> bool:
-        return self.level == other.level and not (self.locked and other.locked)
+        return self.level == other.level and (self.free or other.free)
 
     def __hash__(self) -> int:
         return self._hash
@@ -68,7 +70,7 @@ class State():
     def __init__(self, state: Union[EmptyState, State], move: Move = None):
         self.gems: List[Gem] = state.gems.copy()
 
-        if move is not None:
+        if move:
             self.gems.remove(move[0])
             self.gems.remove(move[1])
             new_gem = MergedGem(move)
@@ -76,17 +78,19 @@ class State():
             self.gems = sorted(self.gems) # Must sort for equality
 
             # Computing score based on previous. Makes it much faster
-            self.score = state.score - move[0].score - move[1].score + new_gem.score - 0.0002
+            merge_penalty = 0.0002
+            self.score = state.score - move[0].score - move[1].score + new_gem.score - merge_penalty
             self._tops = state._tops - (move[0].part == Part.TOP) - (move[1].part == Part.TOP) + (new_gem.part == Part.TOP)
             self._bottoms = state._bottoms - (move[0].part == Part.BOT) - (move[1].part == Part.BOT) + (new_gem.part == Part.BOT)
-            self._free = state._free - (not move[0].locked and not move[1].locked)
-            self.potential_score = ceil(self.score) + 3 * min(self._tops, self._bottoms, self._free)
+            self._free = state._free - (move[0].free and move[1].free)
+            potential_score_bonus = 3 # this is not right, but I am not sure why we need it for e.g. tc45, tc58 and tc71
+            self.potential_score = potential_score_bonus + ceil(self.score) + 3 * min(self._tops, self._bottoms, self._free)
 
     def _update_score(self):
         score, tops, bottoms, free = 0, 0, 0, 0
         for gem in self.gems:
             score += gem.score
-            free += not gem.locked
+            free += gem.free
             bottoms += gem.part == Part.BOT
             tops += gem.part == Part.TOP
 
@@ -137,11 +141,11 @@ class State():
 
     def num_unlocked_part(self) -> int:
         """ Number of unlocked gems with only a key part """
-        return sum(1 for gem in self.gems if not gem.locked and (gem.part == Part.TOP or gem.part == Part.BOT))
+        return sum(1 for gem in self.gems if gem.free and (gem.part == Part.TOP or gem.part == Part.BOT))
 
     def num_unlocked_empty(self) -> int:
         """ Number of unlocked gems with no key part """
-        return sum(1 for gem in self.gems if not gem.locked and gem.part == Part.EMPTY)
+        return sum(1 for gem in self.gems if gem.free and gem.part == Part.EMPTY)
 
     def __hash__(self) -> int:
         return hash(tuple(self.gems))
@@ -227,7 +231,7 @@ class Solver():
             for move in moves:
                 new_state = State(state, move)
 
-                if new_state in self.end_states: # or new_state.potential_score <= self.best.score:
+                if new_state in self.end_states or new_state.potential_score <= self.best.score:
                     continue
                 if new_state.score > self.best.score:
                     self.best = new_state
@@ -244,10 +248,10 @@ class Solver():
         minlevel_free = 100  # minimum level at which free gems can merge
         for i, one in enumerate(state.gems):
             minlevel = min(minlevel, min([one.level for two in state.gems[i+1:] if one.can_merge_with(two) and (one.locked or two.locked)], default=100))
-            minlevel_free = min(minlevel_free, min([one.level for two in state.gems[i+1:] if one.can_merge_with(two) and (not one.locked) and (not two.locked)], default=100))
+            minlevel_free = min(minlevel_free, min([one.level for two in state.gems[i+1:] if one.can_merge_with(two) and one.free and two.free], default=100))
         for i, one in enumerate(state.gems):
             moves.update((one, two) for two in state.gems[i+1:] if (one.level == minlevel and one.can_merge_with(two) and (one.locked or two.locked))
-                                                                    or (minlevel_free < minlevel and one.can_merge_with(two) and (not one.locked) and (not two.locked)))
+                                                                    or (minlevel_free < minlevel and one.can_merge_with(two) and one.free and two.free))
         return moves
 
 def solve(locked_bottom,locked_top,free,free_bottom,free_top,free_full,silent=False) -> Tuple[int]: #pylint: disable=unused-argument
