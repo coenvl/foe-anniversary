@@ -1,14 +1,12 @@
 from solver import solve
-# from mooing15 import solve
-# from my_solver import solve
 
-#V3.1
+# V3.1
 
 # Check out this video for more information: https://youtu.be/uGbZPrpFsI8?t=2086
 
 # This solver can be used to find a sequence of merges that is optimal in terms of
-# the number of generated keys and unlocking tiles for progress (favoring full keys over
-# unlocking tiles)
+# the number of generated keys and unlocking tiles for progress and keeping most leftover
+# gems (thanks to Coen van Leeuwen and Muche)
 
 # The solver only works on one color at the time, so do each color in turn.
 
