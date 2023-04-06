@@ -31,11 +31,11 @@ def get_solvers() -> List[types.FunctionType]:
 class TestCaseType(Flag):
     NONE = 0
     SKIP = 1
-    DEV = 2  # instead of running the rest and comparing the results, run all imported solvers with the input to find out the results
+    DEV = 2  # instead of running the test and comparing the results, run all imported solvers with the input to find out the results
     FOCUS = 4  # to be able to mark test(s) selectively and run only it/them
     BASE = 8  # manually crafted tests focusing on some feature
     FULL = 16  # full boards as gotten from the game
-    PERF = 32  # performance tests, usually tests containing lots of gems leading to lost of possibilities, thus longer running times
+    PERF = 32  # performance tests, usually tests containing lots of gems leading to lots of possibilities, thus longer running times
     ALL = DEV | FOCUS | BASE | FULL | PERF
 
 run_testcases_and = TestCaseType.ALL
@@ -59,7 +59,7 @@ class TestCase():
     FAIL = "\033[31mfailed\033[0m test"
     IMPR = "\033[31mimproved\033[0m test"
     SKIP = "skipped test"
-    DONE = "done test"
+    DONE = "\033[35mdone test\033[0m"
 
     def __init__(
             self, name:str, tctype:TestCaseType,
@@ -119,7 +119,7 @@ class TestCase():
             return rr.try_impr()
         return rr
 
-    def _run_normal(self) -> str:
+    def _run_normal(self) -> Tuple[str, int, int, int, int]:
         rr = RunResult.PASS
         rrstr: List[str] = []
         tStart = timer()
@@ -150,7 +150,7 @@ class TestCase():
             rrstr.insert(0, " -")
         return (f"{status} '{self.name}' in {tEnd-tStart:.3f}s{' '.join(rrstr)}", 0, p, i, f)
 
-    def run(self, mask_and: TestCaseType, mask_or: TestCaseType) -> str:
+    def run(self, mask_and: TestCaseType, mask_or: TestCaseType) -> Tuple[str, int, int, int, int]:
         if (self.tctype & mask_and != self.tctype) or (self.tctype & mask_or == TestCaseType.NONE):
             return (self._run_skip(), 1, 0, 0, 0)
         if self.is_dev():
@@ -653,6 +653,186 @@ testcases: List[TestCase] = [
         locked_bottom=(1,3,2,1), locked_top=(2,2,2,1), free=(7,0,4,0),
         free_bottom=(0,0,0,0), free_top=(0,0,0,0), free_full=(0,0,0,0),
         keys=19, max_keys=21, progress=16, potential_progress=16,
+        unlocked_part = 0, unlocked_empty = 0
+    ),
+    TestCase(name="tc27 perf", tctype=TestCaseType.FULL | TestCaseType.PERF,
+        locked_bottom=(0,1,2,2), locked_top=(3,3,1,1), free=(3,1,4,0),
+        free_bottom=(0,0,0,0), free_top=(0,0,0,0), free_full=(0,0,0,0),
+        keys=15, max_keys=15, progress=16, potential_progress=16,
+        unlocked_part = 1, unlocked_empty = 0
+    ),
+    TestCase(name="tc28", tctype=TestCaseType.FULL,
+        locked_bottom=(0,1,3,0), locked_top=(1,0,0,2), free=(4,0,1,0),
+        free_bottom=(0,0,0,0), free_top=(0,0,0,0), free_full=(0,0,0,0),
+        keys=6, max_keys=9, progress=8, potential_progress=9,
+        unlocked_part = 1, unlocked_empty = 1
+    ),
+    TestCase(name="tc29", tctype=TestCaseType.FULL,
+        locked_bottom=(1,2,2,2), locked_top=(3,1,0,1), free=(2,1,0,0),
+        free_bottom=(0,0,0,0), free_top=(0,0,0,0), free_full=(0,0,0,0),
+        keys=7, max_keys=15, progress=13, potential_progress=15,
+        unlocked_part = 0, unlocked_empty = 0
+    ),
+    TestCase(name="tc30", tctype=TestCaseType.FULL,
+        locked_bottom=(2,0,2,1), locked_top=(2,1,1,2), free=(4,0,1,0),
+        free_bottom=(0,0,0,0), free_top=(0,0,0,0), free_full=(0,0,0,0),
+        keys=9, max_keys=15, progress=14, potential_progress=14,
+        unlocked_part = 1, unlocked_empty = 0
+    ),
+    TestCase(name="tc31", tctype=TestCaseType.FULL,
+        locked_bottom=(3,1,3,1), locked_top=(2,1,0,1), free=(6,1,0,0),
+        free_bottom=(0,0,0,0), free_top=(0,0,0,0), free_full=(0,0,0,0),
+        keys=10, max_keys=12, progress=14, potential_progress=14,
+        unlocked_part = 0, unlocked_empty = 1
+    ),
+    TestCase(name="tc32", tctype=TestCaseType.FULL,
+        locked_bottom=(1,1,1,0), locked_top=(3,1,1,1), free=(4,0,0,1),
+        free_bottom=(0,0,0,0), free_top=(0,0,0,0), free_full=(0,0,0,0),
+        keys=7, max_keys=9, progress=10, potential_progress=10,
+        unlocked_part = 1, unlocked_empty = 0
+    ),
+    TestCase(name="tc33", tctype=TestCaseType.FULL,
+        locked_bottom=(0,2,2,1), locked_top=(3,2,0,0), free=(4,2,1,0),
+        free_bottom=(0,0,0,0), free_top=(0,0,0,0), free_full=(0,0,0,0),
+        keys=10, max_keys=15, progress=11, potential_progress=11,
+        unlocked_part = 1, unlocked_empty = 1
+    ),
+    TestCase(name="tc34", tctype=TestCaseType.FULL,
+        locked_bottom=(1,2,0,1), locked_top=(1,4,3,0), free=(4,1,0,0),
+        free_bottom=(0,0,0,0), free_top=(0,0,0,0), free_full=(0,0,0,0),
+        keys=10, max_keys=12, progress=11, potential_progress=13,
+        unlocked_part = 0, unlocked_empty = 0
+    ),
+    TestCase(name="tc35", tctype=TestCaseType.FULL,
+        locked_bottom=(2,0,2,3), locked_top=(1,1,0,1), free=(1,1,2,0),
+        free_bottom=(0,0,0,0), free_top=(0,0,0,0), free_full=(0,0,0,0),
+        keys=6, max_keys=9, progress=12, potential_progress=14,
+        unlocked_part = 1, unlocked_empty = 1
+    ),
+    TestCase(name="tc36", tctype=TestCaseType.FULL,
+        locked_bottom=(1,0,1,0), locked_top=(1,2,1,3), free=(1,0,0,1),
+        free_bottom=(0,0,0,0), free_top=(0,0,0,0), free_full=(0,0,0,0),
+        keys=3, max_keys=6, progress=9, potential_progress=12,
+        unlocked_part = 1, unlocked_empty = 0
+    ),
+    TestCase(name="tc37 perf", tctype=TestCaseType.FULL | TestCaseType.PERF,
+        locked_bottom=(1,2,5,3), locked_top=(1,2,4,0), free=(3,2,2,1),
+        free_bottom=(0,0,0,0), free_top=(0,0,0,0), free_full=(0,0,0,0),
+        keys=18, max_keys=21, progress=18, potential_progress=21,
+        unlocked_part = 1, unlocked_empty = 1
+    ),
+    TestCase(name="tc38", tctype=TestCaseType.FULL,
+        locked_bottom=(1,1,1,0), locked_top=(1,1,0,0), free=(2,3,1,0),
+        free_bottom=(0,0,0,0), free_top=(0,0,0,0), free_full=(0,0,0,0),
+        keys=6, max_keys=6, progress=5, potential_progress=5,
+        unlocked_part = 1, unlocked_empty = 2
+    ),
+    TestCase(name="tc39", tctype=TestCaseType.FULL,
+        locked_bottom=(0,0,0,0), locked_top=(3,0,0,1), free=(1,1,1,1),
+        free_bottom=(0,0,0,0), free_top=(0,0,0,0), free_full=(0,0,0,0),
+        keys=0, max_keys=0, progress=3, potential_progress=5,
+        unlocked_part = 2, unlocked_empty = 2
+    ),
+    TestCase(name="tc40", tctype=TestCaseType.FULL,
+        locked_bottom=(0,2,0,1), locked_top=(4,3,5,0), free=(2,2,4,1),
+        free_bottom=(0,0,0,0), free_top=(0,0,0,0), free_full=(0,0,0,0),
+        keys=9, max_keys=9, progress=13, potential_progress=16,
+        unlocked_part = 4, unlocked_empty = 2
+    ),
+    TestCase(name="tc41", tctype=TestCaseType.FULL,
+        locked_bottom=(1,3,1,2), locked_top=(2,2,1,1), free=(3,0,0,0),
+        free_bottom=(0,0,0,0), free_top=(0,0,0,0), free_full=(0,0,0,0),
+        keys=7, max_keys=18, progress=14, potential_progress=16,
+        unlocked_part = 0, unlocked_empty = 0
+    ),
+    TestCase(name="tc42", tctype=TestCaseType.FULL,
+        locked_bottom=(3,0,5,0), locked_top=(2,2,2,0), free=(0,2,0,0),
+        free_bottom=(0,0,0,0), free_top=(0,0,0,0), free_full=(0,0,0,0),
+        keys=6, max_keys=18, progress=4, potential_progress=14,
+        unlocked_part = 0, unlocked_empty = 0
+    ),
+    TestCase(name="tc43 perf", tctype=TestCaseType.FULL | TestCaseType.PERF,
+        locked_bottom=(2,1,1,2), locked_top=(1,1,1,1), free=(4,3,2,0),
+        free_bottom=(0,0,0,0), free_top=(0,0,0,0), free_full=(0,0,0,0),
+        keys=12, max_keys=12, progress=13, potential_progress=13,
+        unlocked_part = 0, unlocked_empty = 1
+    ),
+    TestCase(name="tc44", tctype=TestCaseType.FULL,
+        locked_bottom=(1,1,0,0), locked_top=(4,2,0,0), free=(2,1,2,0),
+        free_bottom=(0,0,0,0), free_top=(0,0,0,0), free_full=(0,0,0,0),
+        keys=6, max_keys=6, progress=5, potential_progress=8,
+        unlocked_part = 1, unlocked_empty = 0
+    ),
+    TestCase(name="tc45", tctype=TestCaseType.FULL,
+        locked_bottom=(0,0,0,2), locked_top=(1,0,0,0), free=(3,0,2,0),
+        free_bottom=(0,0,0,0), free_top=(0,0,0,0), free_full=(0,0,0,0),
+        keys=3, max_keys=3, progress=5, potential_progress=5,
+        unlocked_part = 0, unlocked_empty = 1
+    ),
+    TestCase(name="tc46", tctype=TestCaseType.FULL,
+        locked_bottom=(2,1,1,0), locked_top=(0,3,0,0), free=(4,2,1,0),
+        free_bottom=(0,0,0,0), free_top=(0,0,0,0), free_full=(0,0,0,0),
+        keys=9, max_keys=9, progress=7, potential_progress=7,
+        unlocked_part = 1, unlocked_empty = 0
+    ),
+    TestCase(name="tc47 perf", tctype=TestCaseType.FULL | TestCaseType.PERF,
+        locked_bottom=(1,6,2,4), locked_top=(1,2,3,3), free=(6,6,0,0),
+        free_bottom=(0,0,0,0), free_top=(0,0,0,0), free_full=(0,0,0,0),
+        keys=21, max_keys=27, progress=29, potential_progress=29,
+        unlocked_part = 0, unlocked_empty = 0
+    ),
+    TestCase(name="tc48", tctype=TestCaseType.FULL,
+        locked_bottom=(2,0,1,0), locked_top=(1,0,1,1), free=(4,2,0,1),
+        free_bottom=(0,0,0,0), free_top=(0,0,0,0), free_full=(0,0,0,0),
+        keys=6, max_keys=9, progress=7, potential_progress=7,
+        unlocked_part = 2, unlocked_empty = 1
+    ),
+    TestCase(name="tc49", tctype=TestCaseType.FULL,
+        locked_bottom=(4,2,5,1), locked_top=(1,1,1,1), free=(1,2,0,0),
+        free_bottom=(0,0,0,0), free_top=(0,0,0,0), free_full=(0,0,0,0),
+        keys=9, max_keys=12, progress=11, potential_progress=18,
+        unlocked_part = 0, unlocked_empty = 0
+    ),
+    TestCase(name="tc50", tctype=TestCaseType.FULL,
+        locked_bottom=(1,2,0,0), locked_top=(2,1,2,2), free=(5,1,0,0),
+        free_bottom=(0,0,0,0), free_top=(0,0,0,0), free_full=(0,0,0,0),
+        keys=9, max_keys=9, progress=12, potential_progress=12,
+        unlocked_part = 0, unlocked_empty = 0
+    ),
+    TestCase(name="tc51", tctype=TestCaseType.FULL,
+        locked_bottom=(3,2,0,1), locked_top=(1,1,1,2), free=(4,0,0,1),
+        free_bottom=(0,0,0,0), free_top=(0,0,0,0), free_full=(0,0,0,0),
+        keys=9, max_keys=15, progress=14, potential_progress=14,
+        unlocked_part = 1, unlocked_empty = 0
+    ),
+    TestCase(name="tc52", tctype=TestCaseType.FULL,
+        locked_bottom=(1,3,1,0), locked_top=(4,0,1,0), free=(2,1,1,1),
+        free_bottom=(0,0,0,0), free_top=(0,0,0,0), free_full=(0,0,0,0),
+        keys=9, max_keys=15, progress=7, potential_progress=10,
+        unlocked_part = 0, unlocked_empty = 1
+    ),
+    TestCase(name="tc53", tctype=TestCaseType.FULL,
+        locked_bottom=(0,0,3,2), locked_top=(2,1,2,1), free=(2,1,2,1),
+        free_bottom=(0,0,0,0), free_top=(0,0,0,0), free_full=(0,0,0,0),
+        keys=12, max_keys=15, progress=13, potential_progress=14,
+        unlocked_part = 1, unlocked_empty = 0
+    ),
+    TestCase(name="tc54", tctype=TestCaseType.FULL,
+        locked_bottom=(2,1,1,0), locked_top=(0,1,1,2), free=(2,0,1,1),
+        free_bottom=(0,0,0,0), free_top=(0,0,0,0), free_full=(0,0,0,0),
+        keys=7, max_keys=12, progress=10, potential_progress=10,
+        unlocked_part = 1, unlocked_empty = 0
+    ),
+    TestCase(name="tc55", tctype=TestCaseType.FULL,
+        locked_bottom=(1,2,3,1), locked_top=(2,1,1,1), free=(4,0,1,0),
+        free_bottom=(0,0,0,0), free_top=(0,0,0,0), free_full=(0,0,0,0),
+        keys=12, max_keys=15, progress=14, potential_progress=14,
+        unlocked_part = 0, unlocked_empty = 1
+    ),
+    TestCase(name="tc56", tctype=TestCaseType.FULL,
+        locked_bottom=(2,2,2,1), locked_top=(3,1,0,1), free=(5,0,2,0),
+        free_bottom=(0,0,0,0), free_top=(0,0,0,0), free_full=(0,0,0,0),
+        keys=12, max_keys=15, progress=14, potential_progress=14,
         unlocked_part = 0, unlocked_empty = 0
     ),
 
