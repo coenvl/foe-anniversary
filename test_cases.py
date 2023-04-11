@@ -1,7 +1,19 @@
-[
+from enum import Flag
+
+class TestCaseType(Flag):
+    NONE = 0
+    SKIP = 1
+    DEV = 2  # instead of running the test and comparing the results, run all imported solvers with the input to find out the results
+    FOCUS = 4  # to be able to mark test(s) selectively and run only it/them
+    BASE = 8  # manually crafted tests focusing on some feature
+    FULL = 16  # full boards as gotten from the game
+    PERF = 32  # performance tests, usually tests containing lots of gems leading to lots of possibilities, thus longer running times
+    ALL = DEV | FOCUS | BASE | FULL | PERF
+
+tests_suite = [
   {
     "name": "empty board",
-    "tctype": 8,
+    "tctype": TestCaseType.BASE,
     "locked_bottom": [0, 0, 0, 0],
     "locked_top": [0, 0, 0, 0],
     "free": [0, 0, 0, 0],
@@ -17,7 +29,7 @@
   },
   {
     "name": "one L1 bottom",
-    "tctype": 8,
+    "tctype": TestCaseType.BASE,
     "locked_bottom": [1, 0, 0, 0],
     "locked_top": [0, 0, 0, 0],
     "free": [0, 0, 0, 0],
@@ -33,7 +45,7 @@
   },
   {
     "name": "one L1 top",
-    "tctype": 8,
+    "tctype": TestCaseType.BASE,
     "locked_bottom": [0, 0, 0, 0],
     "locked_top": [1, 0, 0, 0],
     "free": [0, 0, 0, 0],
@@ -49,7 +61,7 @@
   },
   {
     "name": "one L1 free",
-    "tctype": 8,
+    "tctype": TestCaseType.BASE,
     "locked_bottom": [0, 0, 0, 0],
     "locked_top": [0, 0, 0, 0],
     "free": [1, 0, 0, 0],
@@ -65,7 +77,7 @@
   },
   {
     "name": "one L1 bot merge",
-    "tctype": 8,
+    "tctype": TestCaseType.BASE,
     "locked_bottom": [1, 0, 0, 0],
     "locked_top": [0, 0, 0, 0],
     "free": [1, 0, 0, 0],
@@ -81,7 +93,7 @@
   },
   {
     "name": "one L1 top merge",
-    "tctype": 8,
+    "tctype": TestCaseType.BASE,
     "locked_bottom": [0, 0, 0, 0],
     "locked_top": [1, 0, 0, 0],
     "free": [1, 0, 0, 0],
@@ -97,7 +109,7 @@
   },
   {
     "name": "two L1 free",
-    "tctype": 8,
+    "tctype": TestCaseType.BASE,
     "locked_bottom": [0, 0, 0, 0],
     "locked_top": [0, 0, 0, 0],
     "free": [2, 0, 0, 0],
@@ -113,7 +125,7 @@
   },
   {
     "name": "one L1 bot L2 top merge",
-    "tctype": 8,
+    "tctype": TestCaseType.BASE,
     "locked_bottom": [1, 0, 0, 0],
     "locked_top": [0, 1, 0, 0],
     "free": [1, 0, 0, 0],
@@ -129,7 +141,7 @@
   },
   {
     "name": "one L1 top L2 bot merge",
-    "tctype": 8,
+    "tctype": TestCaseType.BASE,
     "locked_bottom": [0, 1, 0, 0],
     "locked_top": [1, 0, 0, 0],
     "free": [1, 0, 0, 0],
@@ -145,7 +157,7 @@
   },
   {
     "name": "one L2 bot L3 top merge",
-    "tctype": 8,
+    "tctype": TestCaseType.BASE,
     "locked_bottom": [0, 1, 0, 0],
     "locked_top": [0, 0, 1, 0],
     "free": [0, 1, 0, 0],
@@ -161,7 +173,7 @@
   },
   {
     "name": "one L2 top L3 bot merge",
-    "tctype": 8,
+    "tctype": TestCaseType.BASE,
     "locked_bottom": [0, 0, 1, 0],
     "locked_top": [0, 1, 0, 0],
     "free": [0, 1, 0, 0],
@@ -177,7 +189,7 @@
   },
   {
     "name": "one L3 bot L4 top merge",
-    "tctype": 8,
+    "tctype": TestCaseType.BASE,
     "locked_bottom": [0, 0, 1, 0],
     "locked_top": [0, 0, 0, 1],
     "free": [0, 0, 1, 0],
@@ -193,7 +205,7 @@
   },
   {
     "name": "one L3 top L4 bot merge",
-    "tctype": 8,
+    "tctype": TestCaseType.BASE,
     "locked_bottom": [0, 0, 0, 1],
     "locked_top": [0, 0, 1, 0],
     "free": [0, 0, 1, 0],
@@ -209,7 +221,7 @@
   },
   {
     "name": "one L4 top L4 bot merge",
-    "tctype": 8,
+    "tctype": TestCaseType.BASE,
     "locked_bottom": [0, 0, 0, 1],
     "locked_top": [0, 0, 0, 1],
     "free": [0, 0, 0, 1],
@@ -225,7 +237,7 @@
   },
   {
     "name": "two L1 top L2 bot merges into L4",
-    "tctype": 8,
+    "tctype": TestCaseType.BASE,
     "locked_bottom": [2, 0, 0, 0],
     "locked_top": [0, 2, 0, 0],
     "free": [2, 0, 0, 0],
@@ -241,7 +253,7 @@
   },
   {
     "name": "two L1 bot L2 top merges into L4",
-    "tctype": 8,
+    "tctype": TestCaseType.BASE,
     "locked_bottom": [0, 2, 0, 0],
     "locked_top": [2, 0, 0, 0],
     "free": [2, 0, 0, 0],
@@ -257,7 +269,7 @@
   },
   {
     "name": "one L1 top ignores free L2",
-    "tctype": 8,
+    "tctype": TestCaseType.BASE,
     "locked_bottom": [1, 0, 0, 0],
     "locked_top": [0, 0, 0, 0],
     "free": [1, 1, 0, 0],
@@ -273,7 +285,7 @@
   },
   {
     "name": "one L1 bot ignores free L2",
-    "tctype": 8,
+    "tctype": TestCaseType.BASE,
     "locked_bottom": [0, 0, 0, 0],
     "locked_top": [1, 0, 0, 0],
     "free": [1, 1, 0, 0],
@@ -289,7 +301,7 @@
   },
   {
     "name": "one L2 top ignores free L3",
-    "tctype": 8,
+    "tctype": TestCaseType.BASE,
     "locked_bottom": [0, 1, 0, 0],
     "locked_top": [0, 0, 0, 0],
     "free": [0, 1, 1, 0],
@@ -305,7 +317,7 @@
   },
   {
     "name": "one L2 bot ignores free L3",
-    "tctype": 8,
+    "tctype": TestCaseType.BASE,
     "locked_bottom": [0, 0, 0, 0],
     "locked_top": [0, 1, 0, 0],
     "free": [0, 1, 1, 0],
@@ -321,7 +333,7 @@
   },
   {
     "name": "one L3 top ignores free L4",
-    "tctype": 8,
+    "tctype": TestCaseType.BASE,
     "locked_bottom": [0, 0, 1, 0],
     "locked_top": [0, 0, 0, 0],
     "free": [0, 0, 1, 1],
@@ -337,7 +349,7 @@
   },
   {
     "name": "one L3 bot ignores free L4",
-    "tctype": 8,
+    "tctype": TestCaseType.BASE,
     "locked_bottom": [0, 0, 0, 0],
     "locked_top": [0, 0, 1, 0],
     "free": [0, 0, 1, 1],
@@ -353,7 +365,7 @@
   },
   {
     "name": "gobble locked L4 bot with free",
-    "tctype": 8,
+    "tctype": TestCaseType.BASE,
     "locked_bottom": [0, 0, 0, 1],
     "locked_top": [0, 0, 0, 0],
     "free": [0, 0, 0, 1],
@@ -369,7 +381,7 @@
   },
   {
     "name": "gobble locked L4 top with free",
-    "tctype": 8,
+    "tctype": TestCaseType.BASE,
     "locked_bottom": [0, 0, 0, 0],
     "locked_top": [0, 0, 0, 1],
     "free": [0, 0, 0, 1],
@@ -385,7 +397,7 @@
   },
   {
     "name": "gobble locked L4 bots with free",
-    "tctype": 8,
+    "tctype": TestCaseType.BASE,
     "locked_bottom": [0, 0, 0, 2],
     "locked_top": [0, 0, 0, 0],
     "free": [0, 0, 0, 1],
@@ -401,7 +413,7 @@
   },
   {
     "name": "gobble locked L4 tops with free",
-    "tctype": 8,
+    "tctype": TestCaseType.BASE,
     "locked_bottom": [0, 0, 0, 0],
     "locked_top": [0, 0, 0, 2],
     "free": [0, 0, 0, 1],
@@ -417,7 +429,7 @@
   },
   {
     "name": "gobble locked L4 bot with bot",
-    "tctype": 8,
+    "tctype": TestCaseType.BASE,
     "locked_bottom": [0, 0, 1, 1],
     "locked_top": [0, 0, 0, 0],
     "free": [0, 0, 1, 0],
@@ -433,7 +445,7 @@
   },
   {
     "name": "gobble locked L4 top with top",
-    "tctype": 8,
+    "tctype": TestCaseType.BASE,
     "locked_bottom": [0, 0, 0, 0],
     "locked_top": [0, 0, 1, 1],
     "free": [0, 0, 1, 0],
@@ -449,7 +461,7 @@
   },
   {
     "name": "gobble locked L4 bots with bot",
-    "tctype": 8,
+    "tctype": TestCaseType.BASE,
     "locked_bottom": [0, 0, 1, 2],
     "locked_top": [0, 0, 0, 0],
     "free": [0, 0, 1, 0],
@@ -465,7 +477,7 @@
   },
   {
     "name": "gobble locked L4 tops with top",
-    "tctype": 8,
+    "tctype": TestCaseType.BASE,
     "locked_bottom": [0, 0, 0, 0],
     "locked_top": [0, 0, 1, 2],
     "free": [0, 0, 1, 0],
@@ -481,7 +493,7 @@
   },
   {
     "name": "gobble locked L4 bot with full",
-    "tctype": 8,
+    "tctype": TestCaseType.BASE,
     "locked_bottom": [0, 1, 0, 1],
     "locked_top": [0, 0, 1, 0],
     "free": [0, 1, 0, 0],
@@ -497,7 +509,7 @@
   },
   {
     "name": "gobble locked L4 top with full",
-    "tctype": 8,
+    "tctype": TestCaseType.BASE,
     "locked_bottom": [0, 0, 1, 0],
     "locked_top": [0, 1, 0, 1],
     "free": [0, 1, 0, 0],
@@ -513,7 +525,7 @@
   },
   {
     "name": "gobble locked L4 bots with full",
-    "tctype": 8,
+    "tctype": TestCaseType.BASE,
     "locked_bottom": [0, 1, 0, 2],
     "locked_top": [0, 0, 1, 0],
     "free": [0, 1, 0, 0],
@@ -529,7 +541,7 @@
   },
   {
     "name": "gobble locked L4 tops with full",
-    "tctype": 8,
+    "tctype": TestCaseType.BASE,
     "locked_bottom": [0, 0, 1, 0],
     "locked_top": [0, 1, 0, 2],
     "free": [0, 1, 0, 0],
@@ -545,7 +557,7 @@
   },
   {
     "name": "leave free L4 unmerged",
-    "tctype": 8,
+    "tctype": TestCaseType.BASE,
     "locked_bottom": [0, 0, 0, 0],
     "locked_top": [0, 0, 0, 0],
     "free": [0, 0, 0, 2],
@@ -561,7 +573,7 @@
   },
   {
     "name": "leave free L4 unmerged in presence of merged key",
-    "tctype": 8,
+    "tctype": TestCaseType.BASE,
     "locked_bottom": [0, 0, 0, 1],
     "locked_top": [0, 0, 0, 1],
     "free": [0, 0, 0, 3],
@@ -577,7 +589,7 @@
   },
   {
     "name": "leave free L1-4 unmerged",
-    "tctype": 8,
+    "tctype": TestCaseType.BASE,
     "locked_bottom": [0, 0, 0, 0],
     "locked_top": [0, 0, 0, 0],
     "free": [2, 2, 2, 2],
@@ -593,7 +605,7 @@
   },
   {
     "name": "leave free L1-4 unmerged in presence of merged key",
-    "tctype": 8,
+    "tctype": TestCaseType.BASE,
     "locked_bottom": [0, 0, 0, 1],
     "locked_top": [0, 0, 0, 1],
     "free": [2, 2, 2, 3],
@@ -609,7 +621,7 @@
   },
   {
     "name": "leave free L1-2, merge free L3 for L4 key",
-    "tctype": 8,
+    "tctype": TestCaseType.BASE,
     "locked_bottom": [0, 0, 0, 1],
     "locked_top": [0, 0, 0, 1],
     "free": [2, 2, 4, 0],
@@ -625,7 +637,7 @@
   },
   {
     "name": "leave free L2 bot unmerged, merge free L2 for L4 key",
-    "tctype": 8,
+    "tctype": TestCaseType.BASE,
     "locked_bottom": [2, 0, 0, 1],
     "locked_top": [0, 0, 0, 1],
     "free": [2, 2, 1, 0],
@@ -641,7 +653,7 @@
   },
   {
     "name": "leave free L2 top unmerged, merge free L2 for L4 key",
-    "tctype": 8,
+    "tctype": TestCaseType.BASE,
     "locked_bottom": [0, 0, 0, 1],
     "locked_top": [2, 0, 0, 1],
     "free": [2, 2, 1, 0],
@@ -657,7 +669,7 @@
   },
   {
     "name": "unmerged top is better than unmerged empty",
-    "tctype": 8,
+    "tctype": TestCaseType.BASE,
     "locked_bottom": [0, 0, 0, 1],
     "locked_top": [1, 0, 0, 1],
     "free": [1, 2, 1, 0],
@@ -673,7 +685,7 @@
   },
   {
     "name": "unmerged bot is better than unmerged empty",
-    "tctype": 8,
+    "tctype": TestCaseType.BASE,
     "locked_bottom": [1, 0, 0, 1],
     "locked_top": [0, 0, 0, 1],
     "free": [1, 2, 1, 0],
@@ -689,7 +701,7 @@
   },
   {
     "name": "one unmerged top is better than two unmerged empties",
-    "tctype": 8,
+    "tctype": TestCaseType.BASE,
     "locked_bottom": [0, 0, 0, 1],
     "locked_top": [1, 0, 0, 1],
     "free": [3, 1, 1, 0],
@@ -705,7 +717,7 @@
   },
   {
     "name": "one unmerged bot is better than two unmerged empties",
-    "tctype": 8,
+    "tctype": TestCaseType.BASE,
     "locked_bottom": [1, 0, 0, 1],
     "locked_top": [0, 0, 0, 1],
     "free": [3, 1, 1, 0],
@@ -721,7 +733,7 @@
   },
   {
     "name": "comment-6153598555 by Centaurus",
-    "tctype": 48,
+    "tctype": TestCaseType.FULL | TestCaseType.PERF,
     "locked_bottom": [3, 3, 0, 2],
     "locked_top": [4, 3, 1, 1],
     "free": [1, 2, 1, 1],
@@ -737,7 +749,7 @@
   },
   {
     "name": "comment-6152735906 by Stella Yolanda Zonker",
-    "tctype": 16,
+    "tctype": TestCaseType.FULL,
     "locked_bottom": [2, 1, 0, 0],
     "locked_top": [2, 2, 1, 1],
     "free": [0, 0, 1, 0],
@@ -753,7 +765,7 @@
   },
   {
     "name": "comment-6151362161 by szevasz",
-    "tctype": 16,
+    "tctype": TestCaseType.FULL,
     "locked_bottom": [0, 0, 1, 0],
     "locked_top": [1, 0, 2, 1],
     "free": [2, 2, 0, 0],
@@ -769,7 +781,7 @@
   },
   {
     "name": "comment-6149964806 by Muche",
-    "tctype": 48,
+    "tctype": TestCaseType.FULL | TestCaseType.PERF,
     "locked_bottom": [1, 1, 1, 2],
     "locked_top": [2, 5, 1, 1],
     "free": [4, 0, 3, 1],
@@ -785,7 +797,7 @@
   },
   {
     "name": "comment-6149249510 by Muche",
-    "tctype": 16,
+    "tctype": TestCaseType.FULL,
     "locked_bottom": [3, 1, 0, 1],
     "locked_top": [4, 0, 0, 0],
     "free": [3, 0, 1, 0],
@@ -801,7 +813,7 @@
   },
   {
     "name": "comment-6148461376 by Stella Yolanda Zonker",
-    "tctype": 16,
+    "tctype": TestCaseType.FULL,
     "locked_bottom": [1, 2, 0, 1],
     "locked_top": [0, 0, 2, 0],
     "free": [1, 0, 0, 0],
@@ -817,7 +829,7 @@
   },
   {
     "name": "comment-6148124724 by Max Barbarian",
-    "tctype": 16,
+    "tctype": TestCaseType.FULL,
     "locked_bottom": [1, 2, 1, 3],
     "locked_top": [0, 1, 2, 0],
     "free": [0, 1, 1, 1],
@@ -833,7 +845,7 @@
   },
   {
     "name": "comment-6147057517 by Rigel Blue",
-    "tctype": 48,
+    "tctype": TestCaseType.FULL | TestCaseType.PERF,
     "locked_bottom": [4, 0, 1, 2],
     "locked_top": [2, 1, 2, 1],
     "free": [2, 6, 1, 1],
@@ -849,7 +861,7 @@
   },
   {
     "name": "comment-6153869993 by Stella Yolanda Zonker",
-    "tctype": 16,
+    "tctype": TestCaseType.FULL,
     "locked_bottom": [0, 2, 2, 1],
     "locked_top": [3, 1, 1, 0],
     "free": [4, 1, 0, 0],
@@ -865,7 +877,7 @@
   },
   {
     "name": "comment-6155079334 by MarkusS",
-    "tctype": 16,
+    "tctype": TestCaseType.FULL,
     "locked_bottom": [1, 0, 0, 2],
     "locked_top": [1, 3, 2, 0],
     "free": [4, 0, 0, 0],
@@ -881,7 +893,7 @@
   },
   {
     "name": "tc1",
-    "tctype": 16,
+    "tctype": TestCaseType.FULL,
     "locked_bottom": [0, 3, 1, 3],
     "locked_top": [1, 0, 0, 0],
     "free": [1, 0, 1, 1],
@@ -897,7 +909,7 @@
   },
   {
     "name": "tc2",
-    "tctype": 16,
+    "tctype": TestCaseType.FULL,
     "locked_bottom": [2, 0, 2, 3],
     "locked_top": [1, 0, 1, 0],
     "free": [4, 0, 2, 1],
@@ -913,7 +925,7 @@
   },
   {
     "name": "tc3",
-    "tctype": 16,
+    "tctype": TestCaseType.FULL,
     "locked_bottom": [2, 0, 0, 2],
     "locked_top": [0, 0, 1, 1],
     "free": [4, 0, 0, 2],
@@ -929,7 +941,7 @@
   },
   {
     "name": "tc4",
-    "tctype": 16,
+    "tctype": TestCaseType.FULL,
     "locked_bottom": [0, 1, 0, 0],
     "locked_top": [0, 3, 1, 1],
     "free": [3, 1, 1, 2],
@@ -945,7 +957,7 @@
   },
   {
     "name": "tc5",
-    "tctype": 16,
+    "tctype": TestCaseType.FULL,
     "locked_bottom": [0, 1, 0, 0],
     "locked_top": [3, 3, 3, 2],
     "free": [1, 3, 2, 0],
@@ -961,7 +973,7 @@
   },
   {
     "name": "tc6",
-    "tctype": 16,
+    "tctype": TestCaseType.FULL,
     "locked_bottom": [2, 1, 1, 0],
     "locked_top": [5, 0, 0, 0],
     "free": [4, 2, 0, 0],
@@ -977,7 +989,7 @@
   },
   {
     "name": "tc7",
-    "tctype": 16,
+    "tctype": TestCaseType.FULL,
     "locked_bottom": [0, 3, 0, 0],
     "locked_top": [0, 3, 0, 0],
     "free": [2, 1, 1, 1],
@@ -993,7 +1005,7 @@
   },
   {
     "name": "tc8 perf",
-    "tctype": 48,
+    "tctype": TestCaseType.FULL | TestCaseType.PERF,
     "locked_bottom": [3, 4, 4, 1],
     "locked_top": [1, 3, 0, 1],
     "free": [4, 1, 0, 0],
@@ -1009,7 +1021,7 @@
   },
   {
     "name": "tc9",
-    "tctype": 16,
+    "tctype": TestCaseType.FULL,
     "locked_bottom": [0, 1, 0, 1],
     "locked_top": [1, 0, 0, 2],
     "free": [1, 1, 0, 0],
@@ -1025,7 +1037,7 @@
   },
   {
     "name": "tc10 perf",
-    "tctype": 48,
+    "tctype": TestCaseType.FULL | TestCaseType.PERF,
     "locked_bottom": [2, 2, 4, 1],
     "locked_top": [1, 0, 2, 1],
     "free": [9, 0, 1, 0],
@@ -1041,7 +1053,7 @@
   },
   {
     "name": "tc11",
-    "tctype": 16,
+    "tctype": TestCaseType.FULL,
     "locked_bottom": [3, 2, 2, 1],
     "locked_top": [5, 1, 0, 0],
     "free": [3, 0, 1, 1],
@@ -1057,7 +1069,7 @@
   },
   {
     "name": "tc12 displayorder",
-    "tctype": 16,
+    "tctype": TestCaseType.FULL,
     "locked_bottom": [1, 0, 0, 2],
     "locked_top": [1, 3, 0, 1],
     "free": [0, 2, 1, 0],
@@ -1073,7 +1085,7 @@
   },
   {
     "name": "tc13 perf",
-    "tctype": 48,
+    "tctype": TestCaseType.FULL | TestCaseType.PERF,
     "locked_bottom": [1, 1, 1, 0],
     "locked_top": [1, 1, 1, 3],
     "free": [5, 1, 1, 1],
@@ -1089,7 +1101,7 @@
   },
   {
     "name": "tc14 perf",
-    "tctype": 48,
+    "tctype": TestCaseType.FULL | TestCaseType.PERF,
     "locked_bottom": [2, 3, 1, 0],
     "locked_top": [2, 0, 1, 2],
     "free": [2, 3, 2, 0],
@@ -1105,7 +1117,7 @@
   },
   {
     "name": "tc15",
-    "tctype": 16,
+    "tctype": TestCaseType.FULL,
     "locked_bottom": [3, 1, 2, 0],
     "locked_top": [3, 2, 0, 1],
     "free": [1, 1, 0, 0],
@@ -1121,7 +1133,7 @@
   },
   {
     "name": "tc16",
-    "tctype": 16,
+    "tctype": TestCaseType.FULL,
     "locked_bottom": [1, 1, 0, 2],
     "locked_top": [1, 2, 1, 0],
     "free": [1, 0, 1, 1],
@@ -1137,7 +1149,7 @@
   },
   {
     "name": "tc17",
-    "tctype": 16,
+    "tctype": TestCaseType.FULL,
     "locked_bottom": [1, 0, 2, 2],
     "locked_top": [0, 2, 2, 1],
     "free": [3, 1, 0, 1],
@@ -1153,7 +1165,7 @@
   },
   {
     "name": "tc18",
-    "tctype": 16,
+    "tctype": TestCaseType.FULL,
     "locked_bottom": [3, 1, 1, 0],
     "locked_top": [2, 3, 0, 1],
     "free": [2, 2, 1, 0],
@@ -1169,7 +1181,7 @@
   },
   {
     "name": "tc19",
-    "tctype": 16,
+    "tctype": TestCaseType.FULL,
     "locked_bottom": [1, 3, 0, 3],
     "locked_top": [0, 0, 2, 1],
     "free": [3, 0, 0, 0],
@@ -1185,7 +1197,7 @@
   },
   {
     "name": "tc20",
-    "tctype": 16,
+    "tctype": TestCaseType.FULL,
     "locked_bottom": [4, 0, 1, 3],
     "locked_top": [3, 0, 0, 0],
     "free": [2, 0, 0, 0],
@@ -1201,7 +1213,7 @@
   },
   {
     "name": "tc21",
-    "tctype": 16,
+    "tctype": TestCaseType.FULL,
     "locked_bottom": [3, 0, 1, 2],
     "locked_top": [0, 3, 0, 0],
     "free": [5, 0, 3, 0],
@@ -1217,7 +1229,7 @@
   },
   {
     "name": "tc22",
-    "tctype": 16,
+    "tctype": TestCaseType.FULL,
     "locked_bottom": [1, 3, 0, 0],
     "locked_top": [1, 1, 2, 3],
     "free": [3, 0, 0, 0],
@@ -1233,7 +1245,7 @@
   },
   {
     "name": "tc23",
-    "tctype": 16,
+    "tctype": TestCaseType.FULL,
     "locked_bottom": [3, 2, 3, 0],
     "locked_top": [1, 2, 0, 1],
     "free": [3, 0, 0, 0],
@@ -1249,7 +1261,7 @@
   },
   {
     "name": "tc24 perf",
-    "tctype": 48,
+    "tctype": TestCaseType.FULL | TestCaseType.PERF,
     "locked_bottom": [2, 2, 3, 2],
     "locked_top": [2, 4, 2, 0],
     "free": [5, 3, 1, 0],
@@ -1265,7 +1277,7 @@
   },
   {
     "name": "tc25 perf",
-    "tctype": 48,
+    "tctype": TestCaseType.FULL | TestCaseType.PERF,
     "locked_bottom": [1, 1, 2, 4],
     "locked_top": [2, 2, 0, 2],
     "free": [3, 1, 4, 0],
@@ -1281,7 +1293,7 @@
   },
   {
     "name": "tc26 perf",
-    "tctype": 48,
+    "tctype": TestCaseType.FULL | TestCaseType.PERF,
     "locked_bottom": [1, 3, 2, 1],
     "locked_top": [2, 2, 2, 1],
     "free": [7, 0, 4, 0],
@@ -1297,7 +1309,7 @@
   },
   {
     "name": "tc27 perf",
-    "tctype": 48,
+    "tctype": TestCaseType.FULL | TestCaseType.PERF,
     "locked_bottom": [0, 1, 2, 2],
     "locked_top": [3, 3, 1, 1],
     "free": [3, 1, 4, 0],
@@ -1313,7 +1325,7 @@
   },
   {
     "name": "tc28",
-    "tctype": 16,
+    "tctype": TestCaseType.FULL,
     "locked_bottom": [0, 1, 3, 0],
     "locked_top": [1, 0, 0, 2],
     "free": [4, 0, 1, 0],
@@ -1329,7 +1341,7 @@
   },
   {
     "name": "tc29",
-    "tctype": 16,
+    "tctype": TestCaseType.FULL,
     "locked_bottom": [1, 2, 2, 2],
     "locked_top": [3, 1, 0, 1],
     "free": [2, 1, 0, 0],
@@ -1345,7 +1357,7 @@
   },
   {
     "name": "tc30",
-    "tctype": 16,
+    "tctype": TestCaseType.FULL,
     "locked_bottom": [2, 0, 2, 1],
     "locked_top": [2, 1, 1, 2],
     "free": [4, 0, 1, 0],
@@ -1361,7 +1373,7 @@
   },
   {
     "name": "tc31",
-    "tctype": 16,
+    "tctype": TestCaseType.FULL,
     "locked_bottom": [3, 1, 3, 1],
     "locked_top": [2, 1, 0, 1],
     "free": [6, 1, 0, 0],
@@ -1377,7 +1389,7 @@
   },
   {
     "name": "tc32",
-    "tctype": 16,
+    "tctype": TestCaseType.FULL,
     "locked_bottom": [1, 1, 1, 0],
     "locked_top": [3, 1, 1, 1],
     "free": [4, 0, 0, 1],
@@ -1393,7 +1405,7 @@
   },
   {
     "name": "tc33",
-    "tctype": 16,
+    "tctype": TestCaseType.FULL,
     "locked_bottom": [0, 2, 2, 1],
     "locked_top": [3, 2, 0, 0],
     "free": [4, 2, 1, 0],
@@ -1409,7 +1421,7 @@
   },
   {
     "name": "tc34",
-    "tctype": 16,
+    "tctype": TestCaseType.FULL,
     "locked_bottom": [1, 2, 0, 1],
     "locked_top": [1, 4, 3, 0],
     "free": [4, 1, 0, 0],
@@ -1425,7 +1437,7 @@
   },
   {
     "name": "tc35",
-    "tctype": 16,
+    "tctype": TestCaseType.FULL,
     "locked_bottom": [2, 0, 2, 3],
     "locked_top": [1, 1, 0, 1],
     "free": [1, 1, 2, 0],
@@ -1441,7 +1453,7 @@
   },
   {
     "name": "tc36",
-    "tctype": 16,
+    "tctype": TestCaseType.FULL,
     "locked_bottom": [1, 0, 1, 0],
     "locked_top": [1, 2, 1, 3],
     "free": [1, 0, 0, 1],
@@ -1457,7 +1469,7 @@
   },
   {
     "name": "tc37 perf",
-    "tctype": 48,
+    "tctype": TestCaseType.FULL | TestCaseType.PERF,
     "locked_bottom": [1, 2, 5, 3],
     "locked_top": [1, 2, 4, 0],
     "free": [3, 2, 2, 1],
@@ -1473,7 +1485,7 @@
   },
   {
     "name": "tc38",
-    "tctype": 16,
+    "tctype": TestCaseType.FULL,
     "locked_bottom": [1, 1, 1, 0],
     "locked_top": [1, 1, 0, 0],
     "free": [2, 3, 1, 0],
@@ -1489,7 +1501,7 @@
   },
   {
     "name": "tc39",
-    "tctype": 16,
+    "tctype": TestCaseType.FULL,
     "locked_bottom": [0, 0, 0, 0],
     "locked_top": [3, 0, 0, 1],
     "free": [1, 1, 1, 1],
@@ -1505,7 +1517,7 @@
   },
   {
     "name": "tc40",
-    "tctype": 16,
+    "tctype": TestCaseType.FULL,
     "locked_bottom": [0, 2, 0, 1],
     "locked_top": [4, 3, 5, 0],
     "free": [2, 2, 4, 1],
@@ -1521,7 +1533,7 @@
   },
   {
     "name": "tc41",
-    "tctype": 16,
+    "tctype": TestCaseType.FULL,
     "locked_bottom": [1, 3, 1, 2],
     "locked_top": [2, 2, 1, 1],
     "free": [3, 0, 0, 0],
@@ -1537,7 +1549,7 @@
   },
   {
     "name": "tc42",
-    "tctype": 16,
+    "tctype": TestCaseType.FULL,
     "locked_bottom": [3, 0, 5, 0],
     "locked_top": [2, 2, 2, 0],
     "free": [0, 2, 0, 0],
@@ -1553,7 +1565,7 @@
   },
   {
     "name": "tc43 perf",
-    "tctype": 48,
+    "tctype": TestCaseType.FULL | TestCaseType.PERF,
     "locked_bottom": [2, 1, 1, 2],
     "locked_top": [1, 1, 1, 1],
     "free": [4, 3, 2, 0],
@@ -1569,7 +1581,7 @@
   },
   {
     "name": "tc44",
-    "tctype": 16,
+    "tctype": TestCaseType.FULL,
     "locked_bottom": [1, 1, 0, 0],
     "locked_top": [4, 2, 0, 0],
     "free": [2, 1, 2, 0],
@@ -1585,7 +1597,7 @@
   },
   {
     "name": "tc45",
-    "tctype": 16,
+    "tctype": TestCaseType.FULL,
     "locked_bottom": [0, 0, 0, 2],
     "locked_top": [1, 0, 0, 0],
     "free": [3, 0, 2, 0],
@@ -1601,7 +1613,7 @@
   },
   {
     "name": "tc46",
-    "tctype": 16,
+    "tctype": TestCaseType.FULL,
     "locked_bottom": [2, 1, 1, 0],
     "locked_top": [0, 3, 0, 0],
     "free": [4, 2, 1, 0],
@@ -1617,7 +1629,7 @@
   },
   {
     "name": "tc47 perf",
-    "tctype": 48,
+    "tctype": TestCaseType.FULL | TestCaseType.PERF,
     "locked_bottom": [1, 6, 2, 4],
     "locked_top": [1, 2, 3, 3],
     "free": [6, 6, 0, 0],
@@ -1633,7 +1645,7 @@
   },
   {
     "name": "tc48",
-    "tctype": 16,
+    "tctype": TestCaseType.FULL,
     "locked_bottom": [2, 0, 1, 0],
     "locked_top": [1, 0, 1, 1],
     "free": [4, 2, 0, 1],
@@ -1649,7 +1661,7 @@
   },
   {
     "name": "tc49",
-    "tctype": 16,
+    "tctype": TestCaseType.FULL,
     "locked_bottom": [4, 2, 5, 1],
     "locked_top": [1, 1, 1, 1],
     "free": [1, 2, 0, 0],
@@ -1665,7 +1677,7 @@
   },
   {
     "name": "tc50",
-    "tctype": 16,
+    "tctype": TestCaseType.FULL,
     "locked_bottom": [1, 2, 0, 0],
     "locked_top": [2, 1, 2, 2],
     "free": [5, 1, 0, 0],
@@ -1681,7 +1693,7 @@
   },
   {
     "name": "tc51",
-    "tctype": 16,
+    "tctype": TestCaseType.FULL,
     "locked_bottom": [3, 2, 0, 1],
     "locked_top": [1, 1, 1, 2],
     "free": [4, 0, 0, 1],
@@ -1697,7 +1709,7 @@
   },
   {
     "name": "tc52",
-    "tctype": 16,
+    "tctype": TestCaseType.FULL,
     "locked_bottom": [1, 3, 1, 0],
     "locked_top": [4, 0, 1, 0],
     "free": [2, 1, 1, 1],
@@ -1713,7 +1725,7 @@
   },
   {
     "name": "tc53",
-    "tctype": 16,
+    "tctype": TestCaseType.FULL,
     "locked_bottom": [0, 0, 3, 2],
     "locked_top": [2, 1, 2, 1],
     "free": [2, 1, 2, 1],
@@ -1729,7 +1741,7 @@
   },
   {
     "name": "tc54",
-    "tctype": 16,
+    "tctype": TestCaseType.FULL,
     "locked_bottom": [2, 1, 1, 0],
     "locked_top": [0, 1, 1, 2],
     "free": [2, 0, 1, 1],
@@ -1745,7 +1757,7 @@
   },
   {
     "name": "tc55",
-    "tctype": 16,
+    "tctype": TestCaseType.FULL,
     "locked_bottom": [1, 2, 3, 1],
     "locked_top": [2, 1, 1, 1],
     "free": [4, 0, 1, 0],
@@ -1761,7 +1773,7 @@
   },
   {
     "name": "tc56",
-    "tctype": 16,
+    "tctype": TestCaseType.FULL,
     "locked_bottom": [2, 2, 2, 1],
     "locked_top": [3, 1, 0, 1],
     "free": [5, 0, 2, 0],

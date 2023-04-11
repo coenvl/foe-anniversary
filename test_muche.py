@@ -1,10 +1,10 @@
 #!python3
-import json
 from math import floor, log
 import types
-from enum import Enum, Flag
+from enum import Enum
 from timeit import default_timer as timer
-from typing import Dict, Tuple, List
+from typing import Tuple, List
+from test_cases import TestCaseType, tests_suite
 
 # active solver
 from solver import solve
@@ -30,16 +30,6 @@ def get_solvers() -> List[types.FunctionType]:
     # because it's the fastest, which is useful with PERF tests to get a quick baseline result
     solvers.insert(1, solve)
     return solvers
-
-class TestCaseType(Flag):
-    NONE = 0
-    SKIP = 1
-    DEV = 2  # instead of running the test and comparing the results, run all imported solvers with the input to find out the results
-    FOCUS = 4  # to be able to mark test(s) selectively and run only it/them
-    BASE = 8  # manually crafted tests focusing on some feature
-    FULL = 16  # full boards as gotten from the game
-    PERF = 32  # performance tests, usually tests containing lots of gems leading to lots of possibilities, thus longer running times
-    ALL = DEV | FOCUS | BASE | FULL | PERF
 
 run_testcases_and = TestCaseType.ALL
 #run_testcases_and = TestCaseType.ALL ^ TestCaseType.PERF  # don't run PERF tests
@@ -161,10 +151,7 @@ class TestCase():
             return (self._run_dev(), 0, 1, 0, 0)
         return self._run_normal()
 
-testcases: List[TestCase] = []
-with open('test_cases.json', 'r', encoding='utf-8') as fid:
-    json = json.load(fid)
-    testcases = [TestCase(**args) for args in json]
+testcases = [TestCase(**args) for args in tests_suite]
 
 def check_duplicate_tests():
     """ check tests for duplicates (inputs, or names) """
@@ -186,13 +173,14 @@ def check_duplicate_tests():
         else:
             tests_name[test.name] = (i, test)
 
-def run_test_suite():
+def run_test_suite():   
     tests_skipped=0
     tests_passed = 0
     tests_improved = 0
     tests_failed = 0
     width = floor(log(len(testcases), 10)) + 1
     t_start = timer()
+
     for i, testcase in enumerate(testcases):
         result, skipped, passed, improved, failed = testcase.run(run_testcases_and, run_testcases_or)
         tests_skipped += skipped
