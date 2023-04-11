@@ -80,7 +80,7 @@ class State():
             self.gems = sorted(self.gems) # Must sort for equality
 
             # Computing score based on previous. Makes it much faster
-            merge_penalty = 2 * FREE_GEM_WEIGHT
+            merge_penalty = 1.1 * FREE_GEM_WEIGHT
             self.score = state.score - move[0].score - move[1].score + new_gem.score - merge_penalty
             self._tops = state._tops - (move[0].part == Part.TOP) - (move[1].part == Part.TOP) + (new_gem.part == Part.TOP)
             self._bottoms = state._bottoms - (move[0].part == Part.BOT) - (move[1].part == Part.BOT) + (new_gem.part == Part.BOT)
@@ -240,6 +240,7 @@ class Solver():
 
                 self.end_states.add(new_state)
                 stack.append(new_state)
+            stack = sorted(stack, key=lambda x: x.score)
 
     def _find_good_moves(self, state: State):
         """ Limit possible moves to the lowest level with merges of locked gems, 

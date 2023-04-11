@@ -1224,8 +1224,8 @@ tests_suite = [
     "max_keys": 9,
     "progress": 11,
     "potential_progress": 11,
-    "unlocked_part": 1,
-    "unlocked_empty": 1
+    "unlocked_part": 0,
+    "unlocked_empty": 3
   },
   {
     "name": "tc22",
