@@ -438,7 +438,10 @@ def solve(lockedB,lockedT,free,freeB,freeT,freeF,silent=False):
     remainingP = sum(lockedB) + sum(lockedT) + lockedB[3] + lockedT[3]
     totalP = maxP - remainingP
     remainingLocked = sum(lockedB) + sum(lockedT)
+
+    unlocked_part = sum(freeB) + sum(freeT)
+    unlocked_empty = sum(free)
     
     _print(f"Progress: {totalP}/{maxP} ({remainingLocked} remaining locked gems)")
     _print("Keep in mind these results are only for the selected color")
-    return (res,starting,max,totalP,maxP,remainingLocked)
+    return (res,starting,max, totalP,maxP,remainingLocked, unlocked_part,unlocked_empty)
