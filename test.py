@@ -1,4 +1,3 @@
-from my_solver import Solver
 from mooing15 import solve
 from solver import solve as bruteforce_solve
 
@@ -20,19 +19,18 @@ try:
         (locked_bottom, locked_top, free) = test_tuple
 
         (res_best,starting_best,max_best,total_progress_best,max_p_best,remainingLocked_best,unlockedpart_best,unlockedempty_best) = bruteforce_solve(locked_bottom.copy(),locked_top.copy(),free.copy(),freeBot.copy(),freeTop.copy(),freeFull.copy(),silent=True)
-        (res_opt,starting_opt,max_opt,total_progress_opt,max_p_opt,remainingLocked_opt,unlockedpart_opt,unlockedempty_opt) = Solver(locked_bottom.copy(),locked_top.copy(),free.copy(),freeBot.copy(),freeTop.copy(),freeFull.copy(),silent=True).solve()
         (res,starting,max_keys,total_progress,max_p,remainingLocked,unlockedpart,unlockedempty) = solve(locked_bottom.copy(),locked_top.copy(),free.copy(),freeBot.copy(),freeTop.copy(),freeFull.copy(),silent=True)
 
         if res_best > starting or res_best > max_keys:
             raise Exception('Impossible')
 
-        if res_best < res_opt or res_best < res:
+        if res_best < res:
             with open('deteriorate_cases.txt', 'a') as fid:
                 fid.write(f'locked_bottom = {locked_bottom}\n')
                 fid.write(f'locked_top = {locked_top}\n')
                 fid.write(f'free = {free}\n\n')
 
-        if res_best > res_opt or res_best > res:
+        if res_best > res:
             with open('improved_cases.txt', 'a') as fid:
                 fid.write(f'locked_bottom = {locked_bottom}\n')
                 fid.write(f'locked_top = {locked_top}\n')
@@ -44,16 +42,9 @@ try:
                 fid.write(f'locked_top = {locked_top}\n')
                 fid.write(f'free = {free}\n\n')
 
-        if res_best == res_opt and total_progress_best < total_progress_opt:
-            with open('deteriorate_progress.txt', 'a') as fid:
-                fid.write(f'locked_bottom = {locked_bottom}\n')
-                fid.write(f'locked_top = {locked_top}\n')
-                fid.write(f'free = {free}\n\n')
-
-
-        if res_opt == max_keys:
+        if res_best == max_keys:
             score_maximum += 1
-        elif res_opt == starting:
+        elif res_best == starting:
             score_starting += 1
         else:
             score_unsure += 1
